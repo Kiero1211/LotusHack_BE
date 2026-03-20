@@ -5,13 +5,12 @@ export class DashboardSummaryDto {
     topicsMastered: number;
   };
   activeLearning: {
-    document: { id: string; filename: string } | null;
-    phase: number | null;
+    difficulty: string | null;
     progressPercentage: number | null;
     nextTopic: { id: string; title: string } | null;
   } | null;
-  phases: {
-    phase: number;
+  difficulties: {
+    difficulty: string;
     title: string;
     completionPercentage: number;
     topics: { id: string; title: string; masteryLevel: string; bestScore: number }[];

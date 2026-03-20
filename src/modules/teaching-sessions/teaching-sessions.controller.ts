@@ -1,38 +1,108 @@
-import { Controller, Post, Body, Req, HttpException, HttpStatus } from '@nestjs/common';
-import type { Request } from 'express';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Request as ExpressRequest } from 'express';
+import { ChatTeachingSessionDto } from './dto/chat-teaching-session.dto';
+import { CreateTeachingSessionDto } from './dto/create-teaching-session.dto';
+import { ListTeachingSessionsDto } from './dto/list-teaching-sessions.dto';
+import { PatchTeachingSessionDto } from './dto/patch-teaching-session.dto';
 import { TeachingSessionsService } from './teaching-sessions.service';
 
-interface RequestWithUser extends Request {
+const DEV_BYPASS_USER_ID = '67f8b58ab5f6a3c2d1e4f901';
+
+interface RequestWithUser extends ExpressRequest {
   user?: {
-    id?: string;
-    _id?: string;
+    userId?: string;
+    email?: string;
   };
 }
 
-@Controller('api/v1/teaching-sessions')
+@Controller('teaching-sessions')
 export class TeachingSessionsController {
   constructor(private readonly teachingSessionsService: TeachingSessionsService) {}
 
-  @Post()
-  async createSession(
-    @Req() req: RequestWithUser,
-    @Body('topicId') topicId: string,
-    @Body('userId') bodyUserId?: string,
-  ) {
-    const userId = req.user?.id || req.user?._id || bodyUserId || 'placeholder';
-    
-    if (!topicId) {
-      throw new HttpException('topicId is required', HttpStatus.BAD_REQUEST);
+  private getRequestUserId(req: RequestWithUser): string {
+    if (req.user?.userId) {
+      return req.user.userId;
     }
 
-    try {
-      return await this.teachingSessionsService.createSession(userId.toString(), topicId);
-    } catch (err: unknown) {
-      const error = err as Error & { status?: number };
-      throw new HttpException(
-        error.message || 'Error creating teaching session',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    const ignoreAuth =
+      process.env.IGNORE_SESSIONS_AUTH === 'true' ||
+      process.env.NEXT_PUBLIC_IGNORE_SESSIONS_AUTH === 'true';
+
+    if (ignoreAuth) {
+      return DEV_BYPASS_USER_ID;
     }
+
+    throw new UnauthorizedException('User not found in request');
+  }
+
+  @Get()
+  async listSessions(@Request() req: RequestWithUser, @Query() query: ListTeachingSessionsDto) {
+    const userId = this.getRequestUserId(req);
+
+    if (query.user_id && query.user_id !== userId) {
+      throw new ForbiddenException('You can only access your own teaching sessions');
+    }
+
+    return this.teachingSessionsService.listSessions(userId);
+  }
+
+  @Post()
+  async createSession(@Request() req: RequestWithUser, @Body() dto: CreateTeachingSessionDto) {
+    const userId = this.getRequestUserId(req);
+
+    return this.teachingSessionsService.createSession(userId, dto);
+  }
+
+  @Get(':id')
+  async getSession(@Request() req: RequestWithUser, @Param('id') id: string) {
+    const userId = this.getRequestUserId(req);
+
+    return this.teachingSessionsService.getSessionById(userId, id);
+  }
+
+  @Patch(':id')
+  async updateSession(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: PatchTeachingSessionDto,
+  ) {
+    const userId = this.getRequestUserId(req);
+
+    return this.teachingSessionsService.updateSession(userId, id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async deleteSession(@Request() req: RequestWithUser, @Param('id') id: string) {
+    const userId = this.getRequestUserId(req);
+
+    await this.teachingSessionsService.deleteSession(userId, id);
+    return { success: true };
+  }
+
+  @Post(':id/chat')
+  async chat(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: ChatTeachingSessionDto,
+  ) {
+    const userId = this.getRequestUserId(req);
+
+    const response = await this.teachingSessionsService.chatWithSession(userId, id, dto);
+    return { response };
   }
 }

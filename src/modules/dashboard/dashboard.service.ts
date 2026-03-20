@@ -1,21 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { DashboardSummaryDto } from './dto/dashboard-summary.dto';
-import { User, UserDocument } from '../users/schema/user.schema';
-import { Topic, TopicDocument } from '../topics/schemas/topic.schema';
+import { TeachingSession } from '../teaching-sessions/schemas/teaching-session.schema';
 import { TopicMastery } from '../topics/schemas/topic-mastery.schema';
-import {
-  TeachingSession,
-  SessionStatus,
-} from '../teaching-sessions/schemas/teaching-session.schema';
+import { DifficultyLevel, Topic, TopicDocument } from '../topics/schemas/topic.schema';
+import { User, UserDocument } from '../users/schema/user.schema';
+import { DashboardSummaryDto } from './dto/dashboard-summary.dto';
 
-interface PhaseData {
-  phase: number;
+interface DifficultyData {
+  difficulty: string;
   title: string;
   completionPercentage: number;
   topics: { id: string; title: string; masteryLevel: string; bestScore: number }[];
 }
+
+const DIFFICULTY_ORDER: Record<string, number> = {
+  [DifficultyLevel.EASY]: 0,
+  [DifficultyLevel.MEDIUM]: 1,
+  [DifficultyLevel.HARD]: 2,
+};
+
+const DIFFICULTY_TITLES: Record<string, string> = {
+  [DifficultyLevel.EASY]: 'Easy',
+  [DifficultyLevel.MEDIUM]: 'Medium',
+  [DifficultyLevel.HARD]: 'Hard',
+};
 
 @Injectable()
 export class DashboardService {
@@ -33,17 +42,15 @@ export class DashboardService {
     if (userId !== 'placeholder' && Types.ObjectId.isValid(userId)) {
       user = await this.userModel.findById(userId);
     } else {
-      // For testing purposes, fetch first user if placeholder is passed
       user = await this.userModel.findOne();
     }
 
     if (!user) {
       this.logger.warn(`User could not be loaded for dashboard: ${userId}`);
-      // Return empty structure strictly matching DTO rather than 404 for dashboard robustness
       return {
         welcome: { streak: 0, totalPoints: 0, topicsMastered: 0 },
         activeLearning: null,
-        phases: [],
+        difficulties: [],
         recentActivity: [],
       };
     }
@@ -59,84 +66,84 @@ export class DashboardService {
     const lastSession = await this.sessionModel
       .findOne({ userId: user._id })
       .sort({ updatedAt: -1 })
-      .populate('topicId')
       .exec();
 
     let activeLearning: DashboardSummaryDto['activeLearning'] = null;
-    if (lastSession && lastSession.topicId) {
-      const topic = lastSession.topicId as unknown as TopicDocument;
+    if (lastSession) {
       activeLearning = {
-        document: { id: topic.documentId?.toString() || 'doc1', filename: 'Current Document' },
-        phase: topic.phase || 1,
-        progressPercentage: lastSession.status === SessionStatus.COMPLETED ? 100 : 50,
-        nextTopic: { id: topic._id.toString(), title: `Next steps for ${topic.title}` },
+        difficulty: DifficultyLevel.EASY,
+        progressPercentage: Math.min(lastSession.chatHistory?.length ?? 0, 10) * 10,
+        nextTopic: {
+          id: lastSession._id.toString(),
+          title: `Next steps for ${lastSession.topic || lastSession.title}`,
+        },
       };
     }
 
-    // 3. Phases
+    // 3. Difficulties
     const masteries = await this.masteryModel
       .find({ userId: user._id })
       .populate<{ topicId: TopicDocument }>('topicId')
       .exec();
 
-    const phasesMap = new Map<number, PhaseData>();
+    const difficultyMap = new Map<string, DifficultyData>();
 
     for (const m of masteries) {
       if (!m.topicId) continue;
       const t = m.topicId;
-      const phaseNum = t.phase || 1;
+      const diff = t.difficulty || DifficultyLevel.EASY;
 
-      if (!phasesMap.has(phaseNum)) {
-        phasesMap.set(phaseNum, {
-          phase: phaseNum,
-          title: `Phase ${phaseNum}`,
+      if (!difficultyMap.has(diff)) {
+        difficultyMap.set(diff, {
+          difficulty: diff,
+          title: DIFFICULTY_TITLES[diff] || diff,
           completionPercentage: 0,
           topics: [],
         });
       }
 
-      const p = phasesMap.get(phaseNum);
-      if (p) {
-        p.topics.push({
+      const d = difficultyMap.get(diff);
+      if (d) {
+        d.topics.push({
           id: t._id.toString(),
           title: t.title,
           masteryLevel: m.masteryLevel,
           bestScore: m.bestScore,
         });
 
-        const totalScore = p.topics.reduce(
+        const totalScore = d.topics.reduce(
           (acc: number, curr: { bestScore: number }) => acc + curr.bestScore,
           0,
         );
-        p.completionPercentage = Math.round(totalScore / p.topics.length);
+        d.completionPercentage = Math.round(totalScore / d.topics.length);
       }
     }
 
-    const phases = Array.from(phasesMap.values()).sort((a, b) => a.phase - b.phase);
+    const difficulties = Array.from(difficultyMap.values()).sort(
+      (a, b) => (DIFFICULTY_ORDER[a.difficulty] ?? 99) - (DIFFICULTY_ORDER[b.difficulty] ?? 99),
+    );
 
     // 4. Recent Activity
     const recentSessions = await this.sessionModel
-      .find({ userId: user._id, status: SessionStatus.COMPLETED })
-      .sort({ completedAt: -1 })
+      .find({ userId: user._id })
+      .sort({ updatedAt: -1 })
       .limit(5)
-      .populate<{ topicId: TopicDocument }>('topicId')
       .exec();
 
     const recentActivity = recentSessions.map(s => {
-      const t = s.topicId;
       return {
         id: s._id.toString(),
-        type: 'completed',
-        timeAgo: s.completedAt ? this.timeSince(s.completedAt) : 'recently',
-        topicTitle: t?.title || 'Unknown Topic',
-        masteryScore: s.masteryScore || 0,
+        type: 'session_update',
+        timeAgo: this.timeSince(s.updatedAt ?? new Date()),
+        topicTitle: s.topic || s.title,
+        masteryScore: 0,
       };
     });
 
     return {
       welcome,
       activeLearning,
-      phases,
+      difficulties,
       recentActivity,
     };
   }

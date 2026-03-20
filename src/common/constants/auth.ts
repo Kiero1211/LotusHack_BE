@@ -1,4 +1,3 @@
-
 export const AuthProvider = {
   GOOGLE: 'google',
   GITHUB: 'github',
@@ -38,4 +37,3 @@ export const ACCESS_TOKEN_COOKIE_OPTIONS = {
   sameSite: 'lax' as const,
   path: '/',
 };
-
