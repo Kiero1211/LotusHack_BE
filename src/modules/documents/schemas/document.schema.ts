@@ -33,6 +33,9 @@ export class Document extends MongooseDocument {
 
   @Prop({ type: String, default: null })
   errorMessage: string;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const DocumentSchema = SchemaFactory.createForClass(Document);
