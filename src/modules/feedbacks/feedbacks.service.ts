@@ -9,35 +9,27 @@ export class FeedbacksService {
   constructor(@InjectModel(Feedback.name) private feedbackModel: Model<FeedbackDocument>) {}
 
   async upsert(dto: UpsertFeedbackDto): Promise<Feedback> {
-    return this.feedbackModel.findOneAndUpdate(
-      { chatId: new Types.ObjectId(dto.chatId) },
-      {
-        chatId: new Types.ObjectId(dto.chatId),
-        masteryScore: dto.masteryScore,
-        missedConcepts: dto.missedConcepts,
-        strengthsHighlighted: dto.strengthsHighlighted,
-        gentleSuggestions: dto.gentleSuggestions,
-      },
-      { upsert: true, new: true, runValidators: true },
-    );
+    return this.feedbackModel.create({
+      chatId: new Types.ObjectId(dto.chatId),
+      masteryScore: dto.masteryScore,
+      missedConcepts: dto.missedConcepts,
+      strengthsHighlighted: dto.strengthsHighlighted,
+      gentleSuggestions: dto.gentleSuggestions,
+    });
   }
 
-  async findByChatId(chatId: string): Promise<Feedback> {
-    const feedback = await this.feedbackModel.findOne({
-      chatId: new Types.ObjectId(chatId),
-    });
-
-    if (!feedback) {
-      throw new NotFoundException(`Feedback not found for chat ${chatId}`);
-    }
-
-    return feedback;
+  async findByChatId(chatId: string): Promise<Feedback[]> {
+    return this.feedbackModel
+      .find({
+        chatId: new Types.ObjectId(chatId),
+      })
+      .sort({ createdAt: -1 });
   }
 
   async getNewestFeedback(chatId: string): Promise<Feedback> {
-    const feedback = await this.feedbackModel.findOne({
-      chatId: new Types.ObjectId(chatId),
-    });
+    const feedback = await this.feedbackModel
+      .findOne({ chatId: new Types.ObjectId(chatId) })
+      .sort({ createdAt: -1 });
 
     if (!feedback) {
       throw new NotFoundException('No feedback found');
