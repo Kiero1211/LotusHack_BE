@@ -19,6 +19,8 @@ import {
 } from 'src/common/constants/auth';
 import { AUTH_ROUTES } from 'src/common/constants/route';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { UserDocument } from '../../users/schema/user.schema';
 
 import { UserResponseDto } from '../../users/dto/user-response';
 import { LoginDto } from '../dto/login.dto';
@@ -104,10 +106,10 @@ export class AuthController {
   @Post(AUTH_ROUTES.LOGOUT)
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Request() req: AuthenticatedRequest,
+    @CurrentUser() user: UserDocument,
     @Response({ passthrough: true }) res: ExpressResponse,
   ) {
-    await this.authService.logout(req.user.userId);
+    await this.authService.logout(user.id || user._id.toString());
     this.clearAllAuthCookies(res);
     return { message: 'Logged out successfully' };
   }
@@ -151,7 +153,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get(AUTH_ROUTES.PROFILE)
   @Serialize(UserResponseDto)
-  async getProfile(@Request() req: AuthenticatedRequest) {
-    return this.usersService.findById(req.user.userId);
+  async getProfile(@CurrentUser() user: UserDocument) {
+    return this.usersService.findById(user.id || user._id.toString());
   }
 }
