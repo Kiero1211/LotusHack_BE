@@ -12,13 +12,13 @@ export class FeedbacksController {
     return this.feedbacksService.upsert(dto);
   }
 
-  @Get(FEEDBACK_ROUTES.BY_TOPIC)
-  async findByTopicId(@Param('topicId') topicId: string) {
-    return this.feedbacksService.findByTopicId(topicId);
+  @Get(FEEDBACK_ROUTES.BY_CHAT)
+  async findByChatId(@Param('chatId') chatId: string) {
+    return this.feedbacksService.findByChatId(chatId);
   }
 
   @Get(FEEDBACK_ROUTES.NEWEST)
-  async getNewestFeedback(@Param('topicId') topicId: string) {
-    return this.feedbacksService.getNewestFeedback(topicId);
+  async getNewestFeedback(@Param('chatId') chatId: string) {
+    return this.feedbacksService.getNewestFeedback(chatId);
   }
 }
