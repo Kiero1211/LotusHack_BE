@@ -103,7 +103,7 @@ export class TeachingSessionsService {
       { role: 'user', content: dto.message },
     ];
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.anthropic.com/messages', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
