@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { UserRepository } from '../repositories/users.repository';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
+import { User } from '../schema/user.schema';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     return this.userRepository.findById(id);
   }
 
-  async create(data: any) {
+  async create(data: Partial<User>) {
     return this.userRepository.create(data);
   }
 
@@ -24,7 +25,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+
     if (!user.password) {
       throw new BadRequestException('OAuth users cannot change password');
     }
@@ -38,9 +39,9 @@ export class UsersService {
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-    
+
     await this.userRepository.updateById(userId, { password: hashedPassword });
-    
+
     return { success: true, message: 'Password updated successfully' };
   }
 }

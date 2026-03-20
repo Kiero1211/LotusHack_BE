@@ -78,10 +78,7 @@ export class AuthController {
   @Post(AUTH_ROUTES.LOGIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserResponseDto)
-  async login(
-    @Body() loginDto: LoginDto,
-    @Response({ passthrough: true }) res: ExpressResponse,
-  ) {
+  async login(@Body() loginDto: LoginDto, @Response({ passthrough: true }) res: ExpressResponse) {
     const { refreshToken, accessToken, user } = await this.authService.login(loginDto);
     this.setAuthCookies(res, accessToken, refreshToken);
     return user;

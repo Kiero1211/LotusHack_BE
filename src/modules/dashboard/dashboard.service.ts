@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import {
-  SessionStatus,
-  TeachingSession,
-} from '../teaching-sessions/schemas/teaching-session.schema';
+import { TeachingSession } from '../teaching-sessions/schemas/teaching-session.schema';
 import { TopicMastery } from '../topics/schemas/topic-mastery.schema';
 import { DifficultyLevel, Topic, TopicDocument } from '../topics/schemas/topic.schema';
 import { User, UserDocument } from '../users/schema/user.schema';
@@ -69,16 +66,17 @@ export class DashboardService {
     const lastSession = await this.sessionModel
       .findOne({ userId: user._id })
       .sort({ updatedAt: -1 })
-      .populate('topicId')
       .exec();
 
     let activeLearning: DashboardSummaryDto['activeLearning'] = null;
-    if (lastSession && lastSession.topicId) {
-      const topic = lastSession.topicId as unknown as TopicDocument;
+    if (lastSession) {
       activeLearning = {
-        difficulty: topic.difficulty || DifficultyLevel.EASY,
-        progressPercentage: lastSession.status === SessionStatus.COMPLETED ? 100 : 50,
-        nextTopic: { id: topic._id.toString(), title: `Next steps for ${topic.title}` },
+        difficulty: DifficultyLevel.EASY,
+        progressPercentage: Math.min(lastSession.chatHistory?.length ?? 0, 10) * 10,
+        nextTopic: {
+          id: lastSession._id.toString(),
+          title: `Next steps for ${lastSession.topic || lastSession.title}`,
+        },
       };
     }
 
@@ -127,20 +125,18 @@ export class DashboardService {
 
     // 4. Recent Activity
     const recentSessions = await this.sessionModel
-      .find({ userId: user._id, status: SessionStatus.COMPLETED })
-      .sort({ completedAt: -1 })
+      .find({ userId: user._id })
+      .sort({ updatedAt: -1 })
       .limit(5)
-      .populate<{ topicId: TopicDocument }>('topicId')
       .exec();
 
     const recentActivity = recentSessions.map(s => {
-      const t = s.topicId;
       return {
         id: s._id.toString(),
-        type: 'completed',
-        timeAgo: s.completedAt ? this.timeSince(s.completedAt) : 'recently',
-        topicTitle: t?.title || 'Unknown Topic',
-        masteryScore: s.masteryScore || 0,
+        type: 'session_update',
+        timeAgo: this.timeSince(s.updatedAt ?? new Date()),
+        topicTitle: s.topic || s.title,
+        masteryScore: 0,
       };
     });
 

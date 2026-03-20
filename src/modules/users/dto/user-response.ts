@@ -28,6 +28,6 @@ export class UserResponseDto {
   updatedAt: string;
 
   @Expose()
-  @Transform(({ obj }) => !!obj.password)
+  @Transform(({ obj }: { obj: { password?: string } }) => !!obj.password)
   hasPassword: boolean;
 }
