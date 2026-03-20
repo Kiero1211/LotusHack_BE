@@ -1,4 +1,4 @@
-import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsArray, IsMongoId, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class UpsertFeedbackDto {
   @IsMongoId()
@@ -14,11 +14,13 @@ export class UpsertFeedbackDto {
   @IsOptional()
   missedConcepts?: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  strengthsHighlighted: string;
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  strengthsHighlighted?: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  gentleSuggestions: string;
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  gentleSuggestions?: string[];
 }

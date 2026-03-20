@@ -16,4 +16,9 @@ export class FeedbacksController {
   async findByTopicId(@Param('topicId') topicId: string) {
     return this.feedbacksService.findByTopicId(topicId);
   }
+
+  @Get(FEEDBACK_ROUTES.NEWEST)
+  async getNewestFeedback(@Param('topicId') topicId: string) {
+    return this.feedbacksService.getNewestFeedback(topicId);
+  }
 }
