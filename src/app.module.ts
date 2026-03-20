@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { authConfig, databaseConfig } from './common/configs';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { DocumentsModule } from './modules/documents/documents.module';
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
     EventEmitterModule.forRoot(),
     DocumentsModule,
     AuthModule,
+    ChatModule,
     TopicsModule,
     TeachingSessionsModule,
     DashboardModule,
