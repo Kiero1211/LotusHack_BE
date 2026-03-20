@@ -1,25 +1,26 @@
-# Nestjs specific
-/dist
-/node_modules
-/build
-/tmp
+```gitignore
+# NestJS
+dist/
+node_modules/
+build/
+tmp/
 
 # Logs
-logs
+logs/
 *.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
+*-debug.log*
 yarn-error.log*
-lerna-debug.log*
 
-# dotenv environment variable files
+# Environment
 .env
-.env.development
-.env.test
-.env.production
+.env.*
 
-# temp directory
-.temp
-.tmp
+# Editor / Temp
+.temp/
+.tmp/
+.agent/
+.vscode/
+
+package-lock.json
+```
 .DS_Store

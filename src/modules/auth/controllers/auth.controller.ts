@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import { getCsrfOptions } from 'src/common/middleware/csrf.middleware';
 import {
   ACCESS_TOKEN_COOKIE,
   ACCESS_TOKEN_COOKIE_OPTIONS,
@@ -19,7 +20,7 @@ import {
 } from 'src/common/constants/auth';
 import { AUTH_ROUTES } from 'src/common/constants/route';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
-import { getCsrfOptions } from 'src/common/middleware/csrf.middleware';
+
 import { UserResponseDto } from '../../users/dto/user-response';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
@@ -70,6 +71,11 @@ export class AuthController {
     });
   }
 
+  private setCsrfToken(req: ExpressRequest, res: ExpressResponse): string {
+    const { generateCsrfToken } = getCsrfOptions(this.configService);
+    return generateCsrfToken(req, res);
+  }
+
   private clearAllAuthCookies(res: ExpressResponse) {
     res.clearCookie(ACCESS_TOKEN_COOKIE, ACCESS_TOKEN_COOKIE_OPTIONS);
     res.clearCookie(REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE_OPTIONS);
@@ -85,9 +91,14 @@ export class AuthController {
   @Post(AUTH_ROUTES.LOGIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserResponseDto)
-  async login(@Body() loginDto: LoginDto, @Response({ passthrough: true }) res: ExpressResponse) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Request() req: ExpressRequest,
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ) {
     const { refreshToken, accessToken, user } = await this.authService.login(loginDto);
     this.setAuthCookies(res, accessToken, refreshToken);
+    this.setCsrfToken(req, res);
     return user;
   }
 
@@ -133,6 +144,7 @@ export class AuthController {
       'google',
     );
     this.setAuthCookies(res, accessToken, refreshToken);
+    this.setCsrfToken(req, res);
     const clientUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:5173';
     return res.redirect(`${clientUrl}/auth/callback`);
   }
@@ -151,6 +163,7 @@ export class AuthController {
       'github',
     );
     this.setAuthCookies(res, accessToken, refreshToken);
+    this.setCsrfToken(req, res);
     const clientUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:5173';
     return res.redirect(`${clientUrl}/auth/callback`);
   }

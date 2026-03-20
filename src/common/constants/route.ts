@@ -1,5 +1,5 @@
 export const AUTH_ROUTES = {
-  BASE: '/api/auth',
+  BASE: 'auth',
   LOGIN: 'login',
   REGISTER: 'register',
   LOGOUT: 'logout',
