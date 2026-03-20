@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
@@ -17,8 +18,10 @@ import type { Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { DOCUMENT_ROUTES } from 'src/common/constants/route';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UploadDocumentsDto } from './dto/upload-documents.dto';
 import { DocumentsService } from './documents.service';
 
 // Ensure uploads directory exists
@@ -38,7 +41,7 @@ interface AuthRequest extends ExpressRequest {
   user?: { userId: string; email: string };
 }
 
-@Controller('documents')
+@Controller(DOCUMENT_ROUTES.BASE)
 export class DocumentsController {
   private readonly logger = new Logger(DocumentsController.name);
 
@@ -47,7 +50,7 @@ export class DocumentsController {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Post('upload')
+  @Post(DOCUMENT_ROUTES.UPLOAD)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FilesInterceptor('files', 10, {
@@ -71,6 +74,7 @@ export class DocumentsController {
   )
   async uploadDocuments(
     @Request() req: AuthRequest,
+    @Body() uploadDocumentsDto: UploadDocumentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const userId = req.user?.userId;
@@ -88,6 +92,7 @@ export class DocumentsController {
         userId,
         originFileName: file.originalname,
         batchId,
+        teachingSessionId: uploadDocumentsDto.teachingSessionId,
         mimeType: file.mimetype,
       });
       documentRecords.push({ docId: doc.id, file });
@@ -109,13 +114,14 @@ export class DocumentsController {
       id: doc.id,
       originFileName: doc.originFileName,
       batchId: doc.batchId,
+      teachingSessionId: doc.teachingSessionId,
       mimeType: doc.mimeType,
       status: doc.status,
       createdAt: (doc as any).createdAt,
     }));
   }
 
-  @Get('status/:batchId')
+  @Get(DOCUMENT_ROUTES.STATUS_BY_BATCH)
   async getBatchStatus(@Param('batchId') batchId: string) {
     const documents = await this.documentsService.getDocumentsByBatchId(batchId);
     if (!documents || documents.length === 0) {
@@ -127,6 +133,7 @@ export class DocumentsController {
       documents: documents.map(doc => ({
         id: doc.id,
         originFileName: doc.originFileName,
+        teachingSessionId: doc.teachingSessionId,
         status: doc.status,
       })),
     };

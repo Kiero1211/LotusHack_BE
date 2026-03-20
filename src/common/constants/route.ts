@@ -16,3 +16,9 @@ export const FEEDBACK_ROUTES = {
   BY_TOPIC: ':topicId',
   NEWEST: ':topicId/newest',
 } as const;
+
+export const DOCUMENT_ROUTES = {
+  BASE: 'documents',
+  UPLOAD: 'upload',
+  STATUS_BY_BATCH: 'status/:batchId',
+} as const;

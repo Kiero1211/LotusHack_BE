@@ -13,6 +13,7 @@ export class DocumentsService {
     userId: string;
     originFileName: string;
     batchId: string;
+    teachingSessionId: string;
     mimeType: string;
   }) {
     const doc = new this.documentModel({ ...data, status: DocumentStatus.PENDING });
