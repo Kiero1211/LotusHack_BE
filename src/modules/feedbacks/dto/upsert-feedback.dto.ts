@@ -2,7 +2,7 @@ import { IsArray, IsMongoId, IsNumber, IsOptional, IsString, Max, Min } from 'cl
 
 export class UpsertFeedbackDto {
   @IsMongoId()
-  topicId: string;
+  chatId: string;
 
   @IsNumber()
   @Min(0)

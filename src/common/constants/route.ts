@@ -13,8 +13,8 @@ export const AUTH_ROUTES = {
 
 export const FEEDBACK_ROUTES = {
   BASE: 'feedbacks',
-  BY_TOPIC: ':topicId',
-  NEWEST: ':topicId/newest',
+  BY_CHAT: ':chatId',
+  NEWEST: ':chatId/newest',
 } as const;
 
 export const DOCUMENT_ROUTES = {
