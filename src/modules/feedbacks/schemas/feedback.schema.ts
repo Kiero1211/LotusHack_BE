@@ -5,7 +5,7 @@ export type FeedbackDocument = HydratedDocument<Feedback>;
 
 @Schema({ timestamps: true })
 export class Feedback extends MongooseDocument {
-  @Prop({ type: Types.ObjectId, ref: 'Chat', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Chat', required: true, unique: true })
   chatId: Types.ObjectId;
 
   @Prop({ type: Number, required: true, min: 0, max: 100 })
