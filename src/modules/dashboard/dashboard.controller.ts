@@ -13,7 +13,7 @@ interface RequestWithUser extends Request {
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('api/v1/dashboard')
+@Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
