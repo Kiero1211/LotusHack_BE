@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { authConfig, databaseConfig } from './common/configs';
 import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     EventEmitterModule.forRoot(),
     AuthModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [
