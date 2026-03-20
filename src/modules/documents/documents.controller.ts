@@ -6,6 +6,7 @@ import {
   Logger,
   Param,
   Post,
+  Request,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
@@ -13,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import type { Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -23,7 +25,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { UserDocument } from '../users/schema/user.schema';
 import { DocumentsService } from './documents.service';
 import { UploadDocumentsDto } from './dto/upload-documents.dto';
-
 // Ensure uploads directory exists
 if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads');
