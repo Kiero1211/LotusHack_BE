@@ -101,7 +101,7 @@ export class DocumentsController {
   @Get()
   @UseGuards(JwtAuthGuard)
   async getMyDocuments(@Request() req: AuthRequest) {
-    const userId = req.user?.userId ?? (req.user as any)?.sub;
+    const userId = req.user?.userId;
     if (!userId) throw new UnauthorizedException('User not found in request');
 
     const documents = await this.documentsService.getDocumentsByUser(userId);
@@ -111,7 +111,7 @@ export class DocumentsController {
       batchId: doc.batchId,
       mimeType: doc.mimeType,
       status: doc.status,
-      createdAt: (doc as any).createdAt,
+      createdAt: doc.createdAt,
     }));
   }
 

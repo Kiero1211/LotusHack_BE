@@ -46,6 +46,7 @@ export default tseslint.config(
         arrowParens: 'avoid',
         endOfLine: 'lf',
       }],
+      "linebreak-style": "off"
     },
   },
   eslintPluginPrettierRecommended,
