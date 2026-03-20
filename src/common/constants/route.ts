@@ -22,3 +22,8 @@ export const DOCUMENT_ROUTES = {
   UPLOAD: 'upload',
   STATUS_BY_BATCH: 'status/:batchId',
 } as const;
+
+export const GENERATE_TOPIC_ROUTES = {
+  BASE: 'generate-topic',
+  BY_TEACHING_SESSION: ':teachingSessionId',
+} as const;
