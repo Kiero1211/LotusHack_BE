@@ -6,8 +6,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { authConfig, databaseConfig } from './common/configs';
 import { AuthModule } from './modules/auth/auth.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { TeachingSessionsModule } from './modules/teaching-sessions/teaching-sessions.module';
+import { TopicsModule } from './modules/topics/topics.module';
 import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
@@ -18,8 +21,11 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     UsersModule,
     EventEmitterModule.forRoot(),
-    AuthModule,
     DocumentsModule,
+    AuthModule,
+    TopicsModule,
+    TeachingSessionsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [
