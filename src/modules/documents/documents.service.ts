@@ -33,4 +33,18 @@ export class DocumentsService {
   async getDocumentsByUser(userId: string) {
     return this.documentModel.find({ userId }).sort({ createdAt: -1 }).exec();
   }
+
+  async getDocumentById(documentId: string) {
+    return this.documentModel.findById(documentId).exec();
+  }
+
+  async getLatestCompletedDocumentByTeachingSessionId(teachingSessionId: string) {
+    return this.documentModel
+      .findOne({
+        teachingSessionId,
+        status: DocumentStatus.COMPLETED,
+      })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .exec();
+  }
 }

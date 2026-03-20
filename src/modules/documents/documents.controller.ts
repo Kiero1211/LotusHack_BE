@@ -79,6 +79,9 @@ export class DocumentsController {
     @CurrentUser() user: UserDocument,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    const userId = req.user?.userId || '1';
+    if (!userId) throw new UnauthorizedException('User not found in request');
+
     if (!files || files.length === 0) {
       throw new BadRequestException('No files uploaded');
     }
@@ -103,8 +106,8 @@ export class DocumentsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getMyDocuments(@CurrentUser() user: UserDocument) {
-    const userId = user?._id?.toString();
+  async getMyDocuments(@Request() req: AuthRequest) {
+    const userId = req.user?.userId || '1';
     if (!userId) throw new UnauthorizedException('User not found in request');
 
     const documents = await this.documentsService.getDocumentsByUser(userId);
