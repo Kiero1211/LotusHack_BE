@@ -8,6 +8,9 @@ export class Feedback extends MongooseDocument {
   @Prop({ type: Types.ObjectId, ref: 'Topic', required: true })
   topicId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Chat', required: true })
+  chatId: Types.ObjectId;
+
   @Prop({ type: Number, required: true, min: 0, max: 100 })
   masteryScore: number;
 
