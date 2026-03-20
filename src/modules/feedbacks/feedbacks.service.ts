@@ -10,7 +10,7 @@ export class FeedbacksService {
 
   async upsert(dto: UpsertFeedbackDto): Promise<Feedback> {
     return this.feedbackModel.create({
-      topicId: new Types.ObjectId(dto.topicId),
+      chatId: new Types.ObjectId(dto.chatId),
       masteryScore: dto.masteryScore,
       missedConcepts: dto.missedConcepts,
       strengthsHighlighted: dto.strengthsHighlighted,
@@ -18,17 +18,17 @@ export class FeedbacksService {
     });
   }
 
-  async findByTopicId(topicId: string): Promise<Feedback[]> {
+  async findByChatId(chatId: string): Promise<Feedback[]> {
     return this.feedbackModel
       .find({
-        topicId: new Types.ObjectId(topicId),
+        chatId: new Types.ObjectId(chatId),
       })
       .sort({ createdAt: -1 });
   }
 
-  async getNewestFeedback(topicId: string): Promise<Feedback> {
+  async getNewestFeedback(chatId: string): Promise<Feedback> {
     const feedback = await this.feedbackModel
-      .findOne({ topicId: new Types.ObjectId(topicId) })
+      .findOne({ chatId: new Types.ObjectId(chatId) })
       .sort({ createdAt: -1 });
 
     if (!feedback) {

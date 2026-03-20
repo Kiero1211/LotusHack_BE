@@ -3,26 +3,26 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Param,
   Post,
-  Request,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import type { Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { DOCUMENT_ROUTES } from 'src/common/constants/route';
 import { v4 as uuidv4 } from 'uuid';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UploadDocumentsDto } from './dto/upload-documents.dto';
+import type { UserDocument } from '../users/schema/user.schema';
 import { DocumentsService } from './documents.service';
+import { UploadDocumentsDto } from './dto/upload-documents.dto';
 
 // Ensure uploads directory exists
 if (!fs.existsSync('./uploads')) {
@@ -52,6 +52,7 @@ export class DocumentsController {
 
   @Post(DOCUMENT_ROUTES.UPLOAD)
   @UseGuards(JwtAuthGuard)
+  @Post('upload')
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: diskStorage({
@@ -75,21 +76,18 @@ export class DocumentsController {
   async uploadDocuments(
     @Request() req: AuthRequest,
     @Body() uploadDocumentsDto: UploadDocumentsDto,
+    @CurrentUser() user: UserDocument,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const userId = req.user?.userId;
-    if (!userId) throw new UnauthorizedException('User not found in request');
-
     if (!files || files.length === 0) {
       throw new BadRequestException('No files uploaded');
     }
-
     const batchId = uuidv4();
     const documentRecords: { docId: string; file: Express.Multer.File }[] = [];
 
     for (const file of files) {
       const doc = await this.documentsService.createDocument({
-        userId,
+        userId: user?._id?.toString(),
         originFileName: file.originalname,
         batchId,
         teachingSessionId: uploadDocumentsDto.teachingSessionId,
@@ -105,8 +103,8 @@ export class DocumentsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getMyDocuments(@Request() req: AuthRequest) {
-    const userId = req.user?.userId;
+  async getMyDocuments(@CurrentUser() user: UserDocument) {
+    const userId = user?._id?.toString();
     if (!userId) throw new UnauthorizedException('User not found in request');
 
     const documents = await this.documentsService.getDocumentsByUser(userId);
@@ -137,5 +135,11 @@ export class DocumentsController {
         status: doc.status,
       })),
     };
+  }
+
+  @Post('ping')
+  @UseGuards(JwtAuthGuard)
+  async ping() {
+    return { message: 'pong' };
   }
 }
