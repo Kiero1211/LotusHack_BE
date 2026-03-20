@@ -2,7 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { csrfProtection } from './common/middleware/csrf.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,7 +13,7 @@ async function bootstrap() {
     origin: configService.get<string>('CLIENT_URL') || '*',
     credentials: true,
   });
-  app.use(csrfProtection(configService));
+
 
   await app.listen(process.env.PORT ?? 3001);
 }

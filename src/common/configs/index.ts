@@ -27,6 +27,5 @@ export const authConfig = () => ({
       accessTokenMaxAge: Number(process.env.ACCESS_TOKEN_MAX_AGE) || 15 * 60 * 1000,
       refreshTokenMaxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     },
-    csrfSecret: process.env.CSRF_SECRET || 'default-csrf-secret',
   },
 });

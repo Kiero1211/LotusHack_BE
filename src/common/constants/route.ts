@@ -8,6 +8,10 @@ export const AUTH_ROUTES = {
   GOOGLE_CALLBACK: 'google/callback',
   GITHUB: 'github',
   GITHUB_CALLBACK: 'github/callback',
-  CSRF_TOKEN: 'csrf-token',
   PROFILE: 'profile',
+} as const;
+
+export const FEEDBACK_ROUTES = {
+  BASE: 'feedbacks',
+  BY_TOPIC: ':topicId',
 } as const;

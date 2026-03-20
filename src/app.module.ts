@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 import { TeachingSessionsModule } from './modules/teaching-sessions/teaching-sessions.module';
 import { TopicsModule } from './modules/topics/topics.module';
 import { UsersModule } from './modules/users/users.module';
@@ -26,6 +27,7 @@ import { UsersModule } from './modules/users/users.module';
     TopicsModule,
     TeachingSessionsModule,
     DashboardModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [
