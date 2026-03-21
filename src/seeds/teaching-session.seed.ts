@@ -77,13 +77,13 @@ export async function seedTeachingSessions(
         },
         {
           role: 'assistant',
-          content: "Good! What about the third law?",
+          content: 'Good! What about the third law?',
           timestamp: new Date('2026-03-18T14:01:45Z'),
         },
         {
           role: 'user',
           content:
-            "The third law says every action has an equal and opposite reaction, like a rocket pushing gas downward and being pushed upward.",
+            'The third law says every action has an equal and opposite reaction, like a rocket pushing gas downward and being pushed upward.',
           timestamp: new Date('2026-03-18T14:02:30Z'),
         },
       ],

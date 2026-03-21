@@ -31,10 +31,7 @@ export async function seedFeedbacks(feedbackModel: Model<Feedback>): Promise<voi
       _id: FEEDBACK_IDS.carolMLFeedback,
       chatId: CHAT_IDS.carolMLChat,
       masteryScore: 88,
-      missedConcepts: [
-        'Bias-variance tradeoff',
-        'Specific regularization techniques (L1 vs L2)',
-      ],
+      missedConcepts: ['Bias-variance tradeoff', 'Specific regularization techniques (L1 vs L2)'],
       strengthsHighlighted: [
         'Correctly distinguished between supervised and unsupervised learning',
         'Provided clear real-world examples for each type',

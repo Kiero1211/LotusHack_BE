@@ -3,9 +3,7 @@ import { TopicMastery, MasteryLevel } from 'src/modules/topics/schemas/topic-mas
 import { USER_IDS } from './user.seed';
 import { TOPIC_IDS } from './topic.seed';
 
-export async function seedTopicMasteries(
-  topicMasteryModel: Model<TopicMastery>,
-): Promise<void> {
+export async function seedTopicMasteries(topicMasteryModel: Model<TopicMastery>): Promise<void> {
   const masteries = [
     {
       userId: USER_IDS.alice,

@@ -41,7 +41,10 @@ export class TopicsService {
       throw new BadRequestException('documentIds must not be empty');
     }
 
-    const queuedDocuments = await this.resolveQueuedDocuments(input.teachingSessionId, input.documentIds);
+    const queuedDocuments = await this.resolveQueuedDocuments(
+      input.teachingSessionId,
+      input.documentIds,
+    );
 
     let generation = await this.topicGenerationModel
       .findOne({ teachingSessionId: input.teachingSessionId })
@@ -132,7 +135,9 @@ export class TopicsService {
           })
           .exec();
 
-        const sourceDocument = await this.documentsService.getDocumentById(queuedDocument.documentId);
+        const sourceDocument = await this.documentsService.getDocumentById(
+          queuedDocument.documentId,
+        );
         if (!sourceDocument) {
           throw new BadRequestException(`Document not found: ${queuedDocument.documentId}`);
         }
@@ -205,7 +210,9 @@ export class TopicsService {
       }
 
       if (document.teachingSessionId !== teachingSessionId) {
-        throw new BadRequestException(`Document does not belong to teaching session: ${documentId}`);
+        throw new BadRequestException(
+          `Document does not belong to teaching session: ${documentId}`,
+        );
       }
 
       if (document.status !== 'COMPLETED' || !document.processedText?.trim()) {

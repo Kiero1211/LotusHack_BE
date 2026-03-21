@@ -1,24 +1,28 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { FEEDBACK_ROUTES } from 'src/common/constants/route';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetFeedbackQueryDto } from './dto/get-feedback-query.dto';
+import { GetFeedbackResponseDto } from './dto/get-feedback-response.dto';
 import { UpsertFeedbackDto } from './dto/upsert-feedback.dto';
 import { FeedbacksService } from './feedbacks.service';
 
 @Controller(FEEDBACK_ROUTES.BASE)
+@UseGuards(JwtAuthGuard)
 export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) {}
 
+  @Get()
+  async getFeedback(@Query() query: GetFeedbackQueryDto): Promise<GetFeedbackResponseDto> {
+    return this.feedbacksService.findByQuery(query);
+  }
+
+  @Get(FEEDBACK_ROUTES.BY_ID)
+  async getFeedbackById(@Param('feedbackId') feedbackId: string): Promise<GetFeedbackResponseDto> {
+    return this.feedbacksService.findById(feedbackId);
+  }
+
   @Post()
-  async upsert(@Body() dto: UpsertFeedbackDto) {
+  async upsert(@Body() dto: UpsertFeedbackDto): Promise<GetFeedbackResponseDto> {
     return this.feedbacksService.upsert(dto);
-  }
-
-  @Get(FEEDBACK_ROUTES.BY_CHAT)
-  async findByChatId(@Param('chatId') chatId: string) {
-    return this.feedbacksService.findByChatId(chatId);
-  }
-
-  @Get(FEEDBACK_ROUTES.NEWEST)
-  async getNewestFeedback(@Param('chatId') chatId: string) {
-    return this.feedbacksService.getNewestFeedback(chatId);
   }
 }

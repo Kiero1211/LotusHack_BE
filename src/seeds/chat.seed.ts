@@ -1,5 +1,5 @@
 import { Model, Types } from 'mongoose';
-import { Chat } from 'src/modules/chat/schemas/chat.schema';
+import { Chat } from 'src/modules/chats/schemas/chat.schema';
 import { TOPIC_IDS } from './topic.seed';
 
 export const CHAT_IDS = {
@@ -111,8 +111,7 @@ export async function seedChats(chatModel: Model<Chat>): Promise<void> {
         },
         {
           role: 'assistant',
-          content:
-            'Perfect! Can you explain overfitting and how to prevent it?',
+          content: 'Perfect! Can you explain overfitting and how to prevent it?',
           timestamp: new Date(now.getTime() - 56 * 60 * 1000),
         },
         {
