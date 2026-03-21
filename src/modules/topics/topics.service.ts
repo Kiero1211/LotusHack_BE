@@ -11,6 +11,7 @@ import { TeachingSessionsService } from '../teaching-sessions/teaching-sessions.
 import { GenerateTopicResponseDto } from './dto/generate-topic-response.dto';
 import { GenerateTopicStatusResponseDto } from './dto/generate-topic-status-response.dto';
 import { TopicGeneration, TopicGenerationStatus } from './schemas/topic-generation.schema';
+import { TopicMastery } from './schemas/topic-mastery.schema';
 import { DifficultyLevel, Topic } from './schemas/topic.schema';
 import { TopicAiService } from './services/topic-ai.service';
 
@@ -29,6 +30,8 @@ export class TopicsService {
     private readonly topicGenerationModel: Model<TopicGeneration>,
     @InjectModel(Topic.name)
     private readonly topicModel: Model<Topic>,
+    @InjectModel(TopicMastery.name)
+    private readonly topicMasteryModel: Model<TopicMastery>,
     private readonly teachingSessionsService: TeachingSessionsService,
     private readonly documentsService: DocumentsService,
     private readonly topicAiService: TopicAiService,
@@ -111,6 +114,36 @@ export class TopicsService {
       })),
     };
   }
+
+ async deleteTopic(sessionId: string, topicId: string): Promise<void> {
+  const updatedTopicGen = await this.topicGenerationModel.findOneAndUpdate(
+    {
+      teachingSessionId: sessionId,
+      'topics.topicId': topicId,
+    },
+    {
+      $pull: {
+        topics: {
+          topicId: topicId,
+        },
+      },
+    },
+    { new: true }
+  ).exec();
+  
+  if (!updatedTopicGen) {
+    throw new BadRequestException(`Topic not found: ${topicId}`);
+  }
+
+  if (updatedTopicGen.topics.length === 0) {
+    await this.topicGenerationModel.deleteOne({ 
+      _id: updatedTopicGen._id, 
+      topics: { $size: 0 }
+    }).exec();
+  }
+
+  await this.topicMasteryModel.deleteMany({ topicId }).exec();
+}
 
   private async processGeneration(generationId: string): Promise<void> {
     try {

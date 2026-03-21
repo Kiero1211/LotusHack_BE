@@ -1,10 +1,10 @@
 import {
-    BadRequestException,
-    ForbiddenException,
-    Injectable,
-    InternalServerErrorException,
-    Logger,
-    NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
