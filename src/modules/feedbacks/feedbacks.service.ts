@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Chat, ChatDocument } from '../chats/schemas/chat.schema';
 import { Topic, TopicDocument } from '../topics/schemas/topic.schema';
+import { TopicMastery, MasteryLevel } from '../topics/schemas/topic-mastery.schema';
 import { GetFeedbackQueryDto } from './dto/get-feedback-query.dto';
 import { GetFeedbackResponseDto } from './dto/get-feedback-response.dto';
 import { UpsertFeedbackDto } from './dto/upsert-feedback.dto';
@@ -15,6 +16,7 @@ export class FeedbacksService {
     @InjectModel(Feedback.name) private feedbackModel: Model<FeedbackDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     @InjectModel(Topic.name) private topicModel: Model<TopicDocument>,
+    @InjectModel(TopicMastery.name) private topicMasteryModel: Model<TopicMastery>,
     private readonly feedbackAiService: FeedbackAiService,
   ) {}
 
@@ -65,6 +67,13 @@ export class FeedbacksService {
       feedbackId: feedback._id,
     });
 
+    // Update topic mastery for this user
+    await this.upsertTopicMastery(
+      chat.userId,
+      chat.topicId,
+      generatedFeedback.masteryScore,
+    );
+
     return this.mapToResponseDto(feedback);
   }
 
@@ -108,6 +117,36 @@ export class FeedbacksService {
     }
 
     return this.mapToResponseDto(feedback);
+  }
+
+  private scoreToMasteryLevel(score: number): MasteryLevel {
+    if (score >= 80) return MasteryLevel.EXPERT;
+    if (score >= 50) return MasteryLevel.INTERMEDIATE;
+    return MasteryLevel.BEGINNER;
+  }
+
+  private async upsertTopicMastery(
+    userId: Types.ObjectId,
+    topicId: Types.ObjectId,
+    masteryScore: number,
+  ): Promise<void> {
+    const existing = await this.topicMasteryModel
+      .findOne({ userId, topicId })
+      .exec();
+
+    const newBestScore = existing
+      ? Math.max(existing.bestScore, masteryScore)
+      : masteryScore;
+    const newMasteryLevel = this.scoreToMasteryLevel(newBestScore);
+
+    await this.topicMasteryModel.findOneAndUpdate(
+      { userId, topicId },
+      {
+        $set: { bestScore: newBestScore, masteryLevel: newMasteryLevel },
+        $inc: { taughtCount: 1 },
+      },
+      { upsert: true },
+    );
   }
 
   private mapToResponseDto(feedback: FeedbackDocument): GetFeedbackResponseDto {
