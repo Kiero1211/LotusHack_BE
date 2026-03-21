@@ -20,6 +20,7 @@ export const CHAT_ROUTES = {
 export const FEEDBACK_ROUTES = {
   BASE: 'feedbacks',
   BY_ID: ':feedbackId',
+  GENERATE: 'generate',
 } as const;
 
 export const DOCUMENT_ROUTES = {
