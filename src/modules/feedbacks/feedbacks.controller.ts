@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { FEEDBACK_ROUTES } from 'src/common/constants/route';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GenerateFeedbackDto } from './dto/generate-feedback.dto';
@@ -13,8 +13,11 @@ export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) {}
 
   @Get()
-  async getFeedback(@Query() query: GetFeedbackQueryDto): Promise<GetFeedbackResponseDto> {
-    return this.feedbacksService.findByQuery(query);
+  async getFeedback(
+    @Query() query: GetFeedbackQueryDto,
+    @Headers('x-locale') locale?: string,
+  ): Promise<GetFeedbackResponseDto> {
+    return this.feedbacksService.findByQuery(query, locale);
   }
 
   @Get(FEEDBACK_ROUTES.BY_ID)
@@ -28,7 +31,10 @@ export class FeedbacksController {
   }
 
   @Post(FEEDBACK_ROUTES.GENERATE)
-  async generateFeedback(@Body() dto: GenerateFeedbackDto): Promise<GetFeedbackResponseDto> {
-    return this.feedbacksService.generateFeedback(dto.chatId);
+  async generateFeedback(
+    @Body() dto: GenerateFeedbackDto,
+    @Headers('x-locale') locale?: string,
+  ): Promise<GetFeedbackResponseDto> {
+    return this.feedbacksService.generateFeedback(dto.chatId, locale);
   }
 }

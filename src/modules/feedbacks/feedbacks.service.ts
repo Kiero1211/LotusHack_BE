@@ -22,13 +22,27 @@ export class FeedbacksService {
     private readonly feedbackAiService: FeedbackAiService,
   ) {}
 
-  async generateFeedback(chatId: string): Promise<GetFeedbackResponseDto> {
+  async generateFeedback(chatId: string, locale?: string): Promise<GetFeedbackResponseDto> {
+    const normalizedLocale = this.normalizeLocale(locale);
+
     // 1. Check if feedback already exists - return it if so
     const existingFeedback = await this.feedbackModel
       .findOne({ chatId: new Types.ObjectId(chatId) })
       .exec();
 
-    if (existingFeedback) {
+    if (
+      existingFeedback &&
+      existingFeedback.locale === normalizedLocale &&
+      this.feedbackAiService.isFeedbackLocaleCompliant(
+        {
+          masteryScore: existingFeedback.masteryScore,
+          missedConcepts: existingFeedback.missedConcepts,
+          strengthsHighlighted: existingFeedback.strengthsHighlighted,
+          gentleSuggestions: existingFeedback.gentleSuggestions,
+        },
+        normalizedLocale,
+      )
+    ) {
       return this.mapToResponseDto(existingFeedback);
     }
 
@@ -52,16 +66,36 @@ export class FeedbacksService {
         role: item.role,
         content: item.content,
       })),
+      locale: normalizedLocale,
     });
 
     // 5. Save feedback to database
-    const feedback = await this.feedbackModel.create({
-      chatId: new Types.ObjectId(chatId),
-      masteryScore: generatedFeedback.masteryScore,
-      missedConcepts: generatedFeedback.missedConcepts,
-      strengthsHighlighted: generatedFeedback.strengthsHighlighted,
-      gentleSuggestions: generatedFeedback.gentleSuggestions,
-    });
+    const feedback = existingFeedback
+      ? await this.feedbackModel
+          .findByIdAndUpdate(
+            existingFeedback._id,
+            {
+              masteryScore: generatedFeedback.masteryScore,
+              missedConcepts: generatedFeedback.missedConcepts,
+              strengthsHighlighted: generatedFeedback.strengthsHighlighted,
+              gentleSuggestions: generatedFeedback.gentleSuggestions,
+              locale: normalizedLocale,
+            },
+            { new: true, runValidators: true },
+          )
+          .exec()
+      : await this.feedbackModel.create({
+          chatId: new Types.ObjectId(chatId),
+          masteryScore: generatedFeedback.masteryScore,
+          missedConcepts: generatedFeedback.missedConcepts,
+          strengthsHighlighted: generatedFeedback.strengthsHighlighted,
+          gentleSuggestions: generatedFeedback.gentleSuggestions,
+          locale: normalizedLocale,
+        });
+
+    if (!feedback) {
+      throw new NotFoundException(`Failed to save feedback for chat: ${chatId}`);
+    }
 
     // 6. Mark the chat as completed with feedback
     await this.chatModel.findByIdAndUpdate(chatId, {
@@ -105,7 +139,7 @@ export class FeedbacksService {
     return this.mapToResponseDto(feedback);
   }
 
-  async findByQuery(query: GetFeedbackQueryDto): Promise<GetFeedbackResponseDto> {
+  async findByQuery(query: GetFeedbackQueryDto, locale?: string): Promise<GetFeedbackResponseDto> {
     if (!query.chatId) {
       throw new BadRequestException('chatId query parameter is required');
     }
@@ -118,7 +152,26 @@ export class FeedbacksService {
       throw new NotFoundException(`Feedback not found for chat: ${query.chatId}`);
     }
 
+    if (
+      feedback.locale !== this.normalizeLocale(locale) ||
+      !this.feedbackAiService.isFeedbackLocaleCompliant(
+        {
+          masteryScore: feedback.masteryScore,
+          missedConcepts: feedback.missedConcepts,
+          strengthsHighlighted: feedback.strengthsHighlighted,
+          gentleSuggestions: feedback.gentleSuggestions,
+        },
+        locale === 'en' ? 'en' : 'vi',
+      )
+    ) {
+      return this.generateFeedback(query.chatId, locale);
+    }
+
     return this.mapToResponseDto(feedback);
+  }
+
+  private normalizeLocale(locale?: string): 'vi' | 'en' {
+    return locale === 'en' ? 'en' : 'vi';
   }
 
   private scoreToMasteryLevel(score: number): MasteryLevel {
