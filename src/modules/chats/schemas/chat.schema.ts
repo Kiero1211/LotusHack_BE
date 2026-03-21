@@ -29,6 +29,9 @@ export class Chat extends MongooseDocument {
 
   @Prop({ type: Types.ObjectId, ref: 'Feedback', required: false })
   feedbackId?: Types.ObjectId;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);

@@ -19,6 +19,9 @@ export class Feedback extends MongooseDocument {
 
   @Prop({ type: [String], default: [] })
   gentleSuggestions: string[];
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);

@@ -7,7 +7,7 @@ import { Topic } from 'src/modules/topics/schemas/topic.schema';
 import { TopicMastery } from 'src/modules/topics/schemas/topic-mastery.schema';
 import { Document } from 'src/modules/documents/schemas/document.schema';
 import { TeachingSession } from 'src/modules/teaching-sessions/schemas/teaching-session.schema';
-import { Chat } from 'src/modules/chat/schemas/chat.schema';
+import { Chat } from 'src/modules/chats/schemas/chat.schema';
 import { Feedback } from 'src/modules/feedbacks/schemas/feedback.schema';
 
 import { seedUsers } from './user.seed';
