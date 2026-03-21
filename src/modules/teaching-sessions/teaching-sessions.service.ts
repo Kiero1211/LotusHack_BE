@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
+    BadRequestException,
+    ForbiddenException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -29,19 +29,28 @@ export class TeachingSessionsService {
 
   async createSession(userId: string, dto: CreateTeachingSessionDto): Promise<TeachingSession> {
     this.ensureValidUserId(userId);
+    
+    // const created = new this.sessionModel({
+    //   userId: new Types.ObjectId(userId),
+    //   title: dto.title,
+    //   topic: dto.topic,
+    //   sources: [],
+    //   chatHistory: [],
+    // });
 
-    const created = new this.sessionModel({
+    const created = await this.sessionModel.create({
       userId: new Types.ObjectId(userId),
       title: dto.title,
       topic: dto.topic,
       sources: [],
       chatHistory: [],
-    });
+    })
 
-    return created.save();
+    return created;
   }
 
   async getSessionById(userId: string, sessionId: string): Promise<TeachingSession> {
+    
     return this.getOwnedSessionOrThrow(userId, sessionId);
   }
 
@@ -161,12 +170,13 @@ export class TeachingSessionsService {
   ): Promise<TeachingSession> {
     this.ensureValidUserId(userId);
     this.ensureValidSessionId(sessionId);
-
-    const session = await this.sessionModel.findById(sessionId).exec();
+    
+    const session = await this.sessionModel.findById(sessionId);
+    
     if (!session) {
       throw new NotFoundException('Teaching session not found');
     }
-
+    
     if (session.userId.toString() !== userId) {
       throw new ForbiddenException('You do not have access to this teaching session');
     }

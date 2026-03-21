@@ -8,8 +8,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DocumentsService } from '../documents/documents.service';
 import { TeachingSessionsService } from '../teaching-sessions/teaching-sessions.service';
-import { GenerateTopicStatusResponseDto } from './dto/generate-topic-status-response.dto';
 import { GenerateTopicResponseDto } from './dto/generate-topic-response.dto';
+import { GenerateTopicStatusResponseDto } from './dto/generate-topic-status-response.dto';
 import { TopicGeneration, TopicGenerationStatus } from './schemas/topic-generation.schema';
 import { DifficultyLevel, Topic } from './schemas/topic.schema';
 import { TopicAiService } from './services/topic-ai.service';
@@ -35,6 +35,7 @@ export class TopicsService {
   ) {}
 
   async startGeneration(input: StartGenerationInput): Promise<GenerateTopicResponseDto> {
+    
     await this.teachingSessionsService.getSessionById(input.userId, input.teachingSessionId);
 
     if (!input.documentIds.length) {
@@ -84,6 +85,7 @@ export class TopicsService {
     userId: string,
     teachingSessionId: string,
   ): Promise<GenerateTopicStatusResponseDto> {
+    
     await this.teachingSessionsService.getSessionById(userId, teachingSessionId);
 
     const generation = await this.topicGenerationModel.findOne({ teachingSessionId }).exec();
