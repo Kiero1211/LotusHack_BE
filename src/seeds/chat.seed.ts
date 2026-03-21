@@ -1,9 +1,12 @@
 import { Model, Types } from 'mongoose';
 import { Chat } from 'src/modules/chats/schemas/chat.schema';
 import { TOPIC_IDS } from './topic.seed';
+import { USER_IDS } from './user.seed';
+import { TEACHING_SESSION_IDS } from './teaching-session.seed';
 
 export const CHAT_IDS = {
-  alicePhotosynthesisChat: new Types.ObjectId('64d1e2f3a4b5c6d7e8f9a001'),
+  alicePhotosynthesisChat1: new Types.ObjectId('64d1e2f3a4b5c6d7e8f9a001'),
+  alicePhotosynthesisChat2: new Types.ObjectId('64d1e2f3a4b5c6d7e8f9a004'),
   bobNewtonChat: new Types.ObjectId('64d1e2f3a4b5c6d7e8f9a002'),
   carolMLChat: new Types.ObjectId('64d1e2f3a4b5c6d7e8f9a003'),
 };
@@ -13,12 +16,15 @@ export async function seedChats(chatModel: Model<Chat>): Promise<void> {
 
   const chats = [
     {
-      _id: CHAT_IDS.alicePhotosynthesisChat,
+      _id: CHAT_IDS.alicePhotosynthesisChat1,
+      userId: USER_IDS.alice,
+      sessionId: TEACHING_SESSION_IDS.alicePhotosynthesis,
       topicId: TOPIC_IDS.photosynthesis,
+      topicTitle: 'Photosynthesis',
       chatItems: [
         {
           role: 'assistant',
-          content: 'Great! Please teach me everything you know about Photosynthesis.',
+          content: "Hi! I'm so excited to learn about 'Photosynthesis'! Can you explain this concept to me?",
           timestamp: new Date(now.getTime() - 10 * 60 * 1000),
         },
         {
@@ -54,12 +60,41 @@ export async function seedChats(chatModel: Model<Chat>): Promise<void> {
       ],
     },
     {
-      _id: CHAT_IDS.bobNewtonChat,
-      topicId: TOPIC_IDS.newtonLaws,
+      _id: CHAT_IDS.alicePhotosynthesisChat2,
+      userId: USER_IDS.alice,
+      sessionId: TEACHING_SESSION_IDS.alicePhotosynthesis,
+      topicId: TOPIC_IDS.photosynthesis,
+      topicTitle: 'Photosynthesis',
       chatItems: [
         {
           role: 'assistant',
-          content: "Let's explore Newton's Laws of Motion. Please teach me what you know!",
+          content: "Hi! I'm so excited to learn about 'Photosynthesis'! Can you explain this concept to me?",
+          timestamp: new Date(now.getTime() - 2 * 60 * 1000),
+        },
+        {
+          role: 'user',
+          content:
+            'Let me review — photosynthesis converts light, water, and CO2 into glucose and oxygen inside chloroplasts. The light reactions split water and create ATP; the Calvin cycle uses that ATP to fix carbon.',
+          timestamp: new Date(now.getTime() - 1 * 60 * 1000),
+        },
+        {
+          role: 'assistant',
+          content:
+            'Great recall! Can you go deeper — what specific molecules does the electron transport chain produce during the light reactions?',
+          timestamp: new Date(now.getTime() - 30 * 1000),
+        },
+      ],
+    },
+    {
+      _id: CHAT_IDS.bobNewtonChat,
+      userId: USER_IDS.bob,
+      sessionId: TEACHING_SESSION_IDS.bobNewton,
+      topicId: TOPIC_IDS.newtonLaws,
+      topicTitle: "Newton's Laws of Motion",
+      chatItems: [
+        {
+          role: 'assistant',
+          content: "Hi! I'm so excited to learn about 'Newton's Laws of Motion'! Can you explain this concept to me?",
           timestamp: new Date(now.getTime() - 30 * 60 * 1000),
         },
         {
@@ -84,11 +119,14 @@ export async function seedChats(chatModel: Model<Chat>): Promise<void> {
     },
     {
       _id: CHAT_IDS.carolMLChat,
+      userId: USER_IDS.carol,
+      sessionId: TEACHING_SESSION_IDS.carolML,
       topicId: TOPIC_IDS.machineLearnig,
+      topicTitle: 'Introduction to Machine Learning',
       chatItems: [
         {
           role: 'assistant',
-          content: 'Welcome! Please teach me about Introduction to Machine Learning.',
+          content: "Hi! I'm so excited to learn about 'Introduction to Machine Learning'! Can you explain this concept to me?",
           timestamp: new Date(now.getTime() - 60 * 60 * 1000),
         },
         {

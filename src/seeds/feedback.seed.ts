@@ -11,7 +11,7 @@ export async function seedFeedbacks(feedbackModel: Model<Feedback>): Promise<voi
   const feedbacks = [
     {
       _id: FEEDBACK_IDS.alicePhotosynthesisFeedback,
-      chatId: CHAT_IDS.alicePhotosynthesisChat,
+      chatId: CHAT_IDS.alicePhotosynthesisChat1,
       masteryScore: 92,
       missedConcepts: [
         'The role of the electron transport chain in the light reactions',
