@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -57,9 +58,10 @@ export class ChatsController {
     @CurrentUser() user: UserDocument,
     @Param('chatId') chatId: string,
     @Body() dto: SendMessageDto,
+    @Headers('x-locale') locale?: string,
   ): Promise<{ response: string }> {
     const userId = user.id || user._id?.toString();
-    const response = await this.chatsService.sendMessage(userId, chatId, dto);
+    const response = await this.chatsService.sendMessage(userId, chatId, dto, locale);
     return { response };
   }
 
@@ -67,9 +69,10 @@ export class ChatsController {
   async requestHint(
     @CurrentUser() user: UserDocument,
     @Param('chatId') chatId: string,
+    @Headers('x-locale') locale?: string,
   ): Promise<{ hint: string; hintsRemaining: number }> {
     const userId = user.id || user._id?.toString();
-    return this.chatsService.requestHint(userId, chatId);
+    return this.chatsService.requestHint(userId, chatId, locale);
   }
 
   @Delete(CHAT_ROUTES.BY_ID)
