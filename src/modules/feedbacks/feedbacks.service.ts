@@ -59,6 +59,12 @@ export class FeedbacksService {
       gentleSuggestions: generatedFeedback.gentleSuggestions,
     });
 
+    // 6. Mark the chat as completed with feedback
+    await this.chatModel.findByIdAndUpdate(chatId, {
+      hasFeedback: true,
+      feedbackId: feedback._id,
+    });
+
     return this.mapToResponseDto(feedback);
   }
 

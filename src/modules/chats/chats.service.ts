@@ -67,10 +67,10 @@ export class ChatsService {
     const sourceContext = this.buildSourceContext(session?.sources ?? []);
 
     const model = process.env.OPENAI_MODEL || 'gpt-4o';
-    const apiKey = process.env.OPENAI_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-      throw new InternalServerErrorException('Missing OPENAI_KEY configuration');
+      throw new InternalServerErrorException('Missing OPENAI_API_KEY configuration');
     }
 
     const messages = [
