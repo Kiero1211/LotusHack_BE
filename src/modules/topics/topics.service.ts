@@ -11,6 +11,7 @@ import { TeachingSessionsService } from '../teaching-sessions/teaching-sessions.
 import { GenerateTopicResponseDto } from './dto/generate-topic-response.dto';
 import { GenerateTopicStatusResponseDto } from './dto/generate-topic-status-response.dto';
 import { TopicGeneration, TopicGenerationStatus } from './schemas/topic-generation.schema';
+import { TopicMastery } from './schemas/topic-mastery.schema';
 import { DifficultyLevel, Topic } from './schemas/topic.schema';
 import { TopicAiService } from './services/topic-ai.service';
 
@@ -29,6 +30,8 @@ export class TopicsService {
     private readonly topicGenerationModel: Model<TopicGeneration>,
     @InjectModel(Topic.name)
     private readonly topicModel: Model<Topic>,
+    @InjectModel(TopicMastery.name)
+    private readonly topicMasteryModel: Model<TopicMastery>,
     private readonly teachingSessionsService: TeachingSessionsService,
     private readonly documentsService: DocumentsService,
     private readonly topicAiService: TopicAiService,
@@ -110,6 +113,16 @@ export class TopicsService {
         description: topic.description,
       })),
     };
+  }
+
+  async deleteTopic(topicId: string): Promise<void> {
+    const deletedTopic = await this.topicModel.findByIdAndDelete(topicId).exec();
+    
+    if (!deletedTopic) {
+      throw new BadRequestException(`Topic not found: ${topicId}`);
+    }
+
+    await this.topicMasteryModel.deleteMany({ topicId }).exec();
   }
 
   private async processGeneration(generationId: string): Promise<void> {

@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DocumentsModule } from '../documents/documents.module';
 import { TeachingSessionsModule } from '../teaching-sessions/teaching-sessions.module';
 import { TopicsController } from './topics.controller';
+import { TopicController } from './topic.controller';
 import { TopicGeneration, TopicGenerationSchema } from './schemas/topic-generation.schema';
 import { TopicsService } from './topics.service';
 import { Topic, TopicSchema } from './schemas/topic.schema';
@@ -19,7 +20,7 @@ import { TopicAiService } from './services/topic-ai.service';
       { name: TopicGeneration.name, schema: TopicGenerationSchema },
     ]),
   ],
-  controllers: [TopicsController],
+  controllers: [TopicsController, TopicController],
   providers: [TopicsService, TopicAiService],
   exports: [TopicsService, MongooseModule],
 })

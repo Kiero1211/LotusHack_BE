@@ -31,6 +31,11 @@ export const DOCUMENT_ROUTES = {
   BY_TEACHING_SESSION: 'teaching-sessions/:teachingSessionId',
 } as const;
 
+export const TOPIC_ROUTES = {
+  BASE: 'topics',
+  BY_ID: ':topicId',
+} as const;
+
 export const GENERATE_TOPIC_ROUTES = {
   BASE: 'generate-topic',
   BY_TEACHING_SESSION: ':teachingSessionId',
