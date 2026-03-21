@@ -63,6 +63,15 @@ export class ChatsController {
     return { response };
   }
 
+  @Post(CHAT_ROUTES.HINT)
+  async requestHint(
+    @CurrentUser() user: UserDocument,
+    @Param('chatId') chatId: string,
+  ): Promise<{ hint: string; hintsRemaining: number }> {
+    const userId = user.id || user._id?.toString();
+    return this.chatsService.requestHint(userId, chatId);
+  }
+
   @Delete(CHAT_ROUTES.BY_ID)
   @HttpCode(HttpStatus.OK)
   async deleteChat(

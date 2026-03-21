@@ -38,6 +38,12 @@ export class Chat extends MongooseDocument {
   @Prop({ type: Types.ObjectId, ref: 'Feedback', required: false })
   feedbackId?: Types.ObjectId;
 
+  @Prop({ type: Number, default: 0 })
+  hintsUsed: number;
+
+  @Prop({ type: [String], default: [] })
+  hintsGiven: string[];
+
   createdAt: Date;
   updatedAt: Date;
 }

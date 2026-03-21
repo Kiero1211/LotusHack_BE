@@ -12,6 +12,7 @@ export class GetChatResponseDto {
   chatItems: ChatItemDto[];
   hasFeedback: boolean;
   feedbackId?: string;
+  hintsUsed: number;
   createdAt: Date;
   updatedAt: Date;
 }

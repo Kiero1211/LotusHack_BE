@@ -16,6 +16,7 @@ export const CHAT_ROUTES = {
   BASE: 'chats',
   BY_ID: ':chatId',
   MESSAGES: ':chatId/messages',
+  HINT: ':chatId/hint',
 } as const;
 
 export const FEEDBACK_ROUTES = {
