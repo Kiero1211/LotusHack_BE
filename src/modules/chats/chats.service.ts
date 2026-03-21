@@ -110,6 +110,78 @@ export class ChatsService {
     return assistantText;
   }
 
+  async requestHint(userId: string, chatId: string): Promise<{ hint: string; hintsRemaining: number }> {
+    const MAX_HINTS = 3;
+    const chat = await this.getOwnedChatOrThrow(userId, chatId);
+
+    if (chat.hintsUsed >= MAX_HINTS) {
+      throw new ForbiddenException('No hints remaining');
+    }
+
+    const model = process.env.OPENAI_MODEL || 'gpt-4o';
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+      throw new InternalServerErrorException('Missing OPENAI_API_KEY configuration');
+    }
+
+    const conversationSoFar = chat.chatItems.length
+      ? chat.chatItems.map(item => `${item.role.toUpperCase()}: ${item.content}`).join('\n\n')
+      : '(The student has not said anything yet.)';
+
+    const previousHints = chat.hintsGiven ?? [];
+    const previousHintsSection = previousHints.length
+      ? `\n\nHints you have already given (do NOT repeat these or give a similar angle):\n${previousHints.map((h, i) => `${i + 1}. ${h}`).join('\n')}`
+      : '';
+
+    const messages = [
+      {
+        role: 'system',
+        content: [
+          'You are a helpful tutor. The student is practising the "Reverse Learning" method,',
+          `where they teach YOU about the topic: "${chat.topicTitle ?? 'the current topic'}".`,
+          'The student has asked for a hint because they are stuck.',
+          'Give ONE short, encouraging hint that nudges them in the right direction from a FRESH angle.',
+          'Do NOT reveal the answer. Do NOT ask a question back. Keep it to 2-3 sentences.',
+          previousHintsSection,
+        ].join(' '),
+      },
+      {
+        role: 'user',
+        content: `Here is the conversation so far:\n\n${conversationSoFar}\n\nPlease give me a hint.`,
+      },
+    ];
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model, max_tokens: 200, messages }),
+    });
+
+    if (!response.ok) {
+      const rawError = await response.text();
+      this.logger.error(`OpenAI hint API error: ${rawError}`);
+      throw new InternalServerErrorException('Failed to generate hint');
+    }
+
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+
+    const hint =
+      data.choices?.[0]?.message?.content?.trim() ||
+      'Try breaking the topic down into smaller parts and explain what you do know.';
+
+    chat.hintsUsed = (chat.hintsUsed ?? 0) + 1;
+    chat.hintsGiven = [...(chat.hintsGiven ?? []), hint];
+    await chat.save();
+
+    return { hint, hintsRemaining: MAX_HINTS - chat.hintsUsed };
+  }
+
   private async getOwnedChatOrThrow(userId: string, chatId: string): Promise<ChatDocument> {
     if (!Types.ObjectId.isValid(chatId)) {
       throw new NotFoundException('Chat not found');
@@ -133,6 +205,7 @@ export class ChatsService {
       })),
       hasFeedback: !!chat.feedbackId,
       feedbackId: chat.feedbackId?.toString(),
+      hintsUsed: chat.hintsUsed ?? 0,
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt,
     };
