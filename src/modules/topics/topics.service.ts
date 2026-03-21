@@ -120,6 +120,8 @@ export class TopicsService {
     userId: string,
     teachingSessionId: string,
   ): Promise<TopicMasteryItemDto[]> {
+    await this.teachingSessionsService.getSessionById(userId, teachingSessionId);
+
     const generation = await this.topicGenerationModel
       .findOne({ teachingSessionId })
       .exec();
