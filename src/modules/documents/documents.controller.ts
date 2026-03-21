@@ -53,7 +53,6 @@ export class DocumentsController {
 
   @Post(DOCUMENT_ROUTES.UPLOAD)
   @UseGuards(JwtAuthGuard)
-  @Post('upload')
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: diskStorage({
@@ -64,7 +63,7 @@ export class DocumentsController {
         },
       }),
       limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB
+        fileSize: 500 * 1024 * 1024, // 500MB
       },
       fileFilter: (req, file, cb) => {
         if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
@@ -145,5 +144,20 @@ export class DocumentsController {
   @UseGuards(JwtAuthGuard)
   async ping() {
     return { message: 'pong' };
+  }
+
+  @Get(DOCUMENT_ROUTES.BY_TEACHING_SESSION)
+  @UseGuards(JwtAuthGuard)
+  async getDocumentsByTeachingSessionId(@Param('teachingSessionId') teachingSessionId: string) {
+    const documents = await this.documentsService.getDocumentsByTeachingSessionId(teachingSessionId);
+    return documents.map(doc => ({
+      id: doc.id,
+      originFileName: doc.originFileName,
+      batchId: doc.batchId,
+      teachingSessionId: doc.teachingSessionId,
+      mimeType: doc.mimeType,
+      status: doc.status,
+      createdAt: doc.createdAt,
+    }));
   }
 }

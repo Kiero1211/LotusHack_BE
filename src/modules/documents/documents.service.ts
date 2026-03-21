@@ -38,6 +38,10 @@ export class DocumentsService {
     return this.documentModel.findById(documentId).exec();
   }
 
+  async getDocumentsByTeachingSessionId(teachingSessionId: string) {
+    return this.documentModel.find({ teachingSessionId }).sort({ createdAt: -1 }).exec();
+  }
+
   async getLatestCompletedDocumentByTeachingSessionId(teachingSessionId: string) {
     return this.documentModel
       .findOne({
