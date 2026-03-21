@@ -149,6 +149,36 @@ export class TopicsService {
     }));
   }
 
+ async deleteTopic(sessionId: string, topicId: string): Promise<void> {
+  const updatedTopicGen = await this.topicGenerationModel.findOneAndUpdate(
+    {
+      teachingSessionId: sessionId,
+      'topics.topicId': topicId,
+    },
+    {
+      $pull: {
+        topics: {
+          topicId: topicId,
+        },
+      },
+    },
+    { new: true }
+  ).exec();
+  
+  if (!updatedTopicGen) {
+    throw new BadRequestException(`Topic not found: ${topicId}`);
+  }
+
+  if (updatedTopicGen.topics.length === 0) {
+    await this.topicGenerationModel.deleteOne({ 
+      _id: updatedTopicGen._id, 
+      topics: { $size: 0 }
+    }).exec();
+  }
+
+  await this.topicMasteryModel.deleteMany({ topicId }).exec();
+}
+
   private async processGeneration(generationId: string): Promise<void> {
     try {
       let generation = await this.topicGenerationModel.findById(generationId).exec();

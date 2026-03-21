@@ -29,10 +29,13 @@ export const DOCUMENT_ROUTES = {
   UPLOAD: 'upload',
   STATUS_BY_BATCH: 'status/:batchId',
   BY_TEACHING_SESSION: 'teaching-sessions/:teachingSessionId',
+  BY_ID: ':topicId',
 } as const;
+
 
 export const GENERATE_TOPIC_ROUTES = {
   BASE: 'generate-topic',
   BY_TEACHING_SESSION: ':teachingSessionId',
   MASTERY: ':teachingSessionId/mastery',
+  DELETE: 'delete/:teachingSessionId',
 } as const;
