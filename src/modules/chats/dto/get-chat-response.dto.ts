@@ -6,7 +6,9 @@ export class ChatItemDto {
 
 export class GetChatResponseDto {
   chatId: string;
+  sessionId: string;
   topicId: string;
+  topicTitle?: string;
   chatItems: ChatItemDto[];
   hasFeedback: boolean;
   feedbackId?: string;

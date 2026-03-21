@@ -20,7 +20,7 @@ import { ListTeachingSessionsDto } from './dto/list-teaching-sessions.dto';
 import { PatchTeachingSessionDto } from './dto/patch-teaching-session.dto';
 import { TeachingSessionsService } from './teaching-sessions.service';
 
-const DEV_BYPASS_USER_ID = '67f8b58ab5f6a3c2d1e4f901';
+const DEV_BYPASS_USER_ID = '64a1b2c3d4e5f6a7b8c9d001'; // Alice's seed ID
 
 interface RequestWithUser extends ExpressRequest {
   user?: {
