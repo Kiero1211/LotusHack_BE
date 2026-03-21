@@ -9,6 +9,7 @@ export const AUTH_ROUTES = {
   GITHUB: 'github',
   GITHUB_CALLBACK: 'github/callback',
   PROFILE: 'profile',
+  ME: 'me',
 } as const;
 
 export const FEEDBACK_ROUTES = {

@@ -18,11 +18,12 @@ import {
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from 'src/common/constants/auth';
 import { AUTH_ROUTES } from 'src/common/constants/route';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import type { UserDocument } from '../../users/schema/user.schema';
 
 import { UserResponseDto } from '../../users/dto/user-response';
+import { UsersService } from '../../users/services/users.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { GithubOAuthGuard } from '../guards/github-oauth.guard';
@@ -32,7 +33,6 @@ import { JwtRefreshAuthGuard } from '../guards/jwt-refresh-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { OAuthProfile } from '../interfaces/auth.interface';
 import { AuthService } from '../services/auth.service';
-import { UsersService } from '../../users/services/users.service';
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: { userId: string; email: string };
@@ -151,9 +151,9 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(AUTH_ROUTES.PROFILE)
+  @Get(AUTH_ROUTES.ME)
   @Serialize(UserResponseDto)
-  async getProfile(@CurrentUser() user: UserDocument) {
+  async getMe(@CurrentUser() user: UserDocument) {
     return this.usersService.findById(user.id || user._id.toString());
   }
 }
