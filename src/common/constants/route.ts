@@ -12,10 +12,14 @@ export const AUTH_ROUTES = {
   ME: 'me',
 } as const;
 
+export const CHAT_ROUTES = {
+  BASE: 'chats',
+  BY_ID: ':chatId',
+} as const;
+
 export const FEEDBACK_ROUTES = {
   BASE: 'feedbacks',
-  BY_CHAT: ':chatId',
-  NEWEST: ':chatId/newest',
+  BY_ID: ':feedbackId',
 } as const;
 
 export const DOCUMENT_ROUTES = {

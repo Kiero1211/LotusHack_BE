@@ -3,9 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { RefreshToken } from 'src/modules/auth/schemas/refresh-token.schema';
 import { USER_IDS } from './user.seed';
 
-export async function seedRefreshTokens(
-  refreshTokenModel: Model<RefreshToken>,
-): Promise<void> {
+export async function seedRefreshTokens(refreshTokenModel: Model<RefreshToken>): Promise<void> {
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 

@@ -8,8 +8,11 @@ import { RefreshToken, RefreshTokenSchema } from 'src/modules/auth/schemas/refre
 import { Topic, TopicSchema } from 'src/modules/topics/schemas/topic.schema';
 import { TopicMastery, TopicMasterySchema } from 'src/modules/topics/schemas/topic-mastery.schema';
 import { Document, DocumentSchema } from 'src/modules/documents/schemas/document.schema';
-import { TeachingSession, TeachingSessionSchema } from 'src/modules/teaching-sessions/schemas/teaching-session.schema';
-import { Chat, ChatSchema } from 'src/modules/chat/schemas/chat.schema';
+import {
+  TeachingSession,
+  TeachingSessionSchema,
+} from 'src/modules/teaching-sessions/schemas/teaching-session.schema';
+import { Chat, ChatSchema } from 'src/modules/chats/schemas/chat.schema';
 import { Feedback, FeedbackSchema } from 'src/modules/feedbacks/schemas/feedback.schema';
 
 @Module({

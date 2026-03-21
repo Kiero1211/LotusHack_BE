@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { authConfig, databaseConfig, openaiConfig } from './common/configs';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChatsModule } from './modules/chats/chats.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { DocumentsModule } from './modules/documents/documents.module';
@@ -27,6 +28,7 @@ import { UsersModule } from './modules/users/users.module';
     TopicsModule,
     TeachingSessionsModule,
     DashboardModule,
+    ChatsModule,
     FeedbacksModule,
   ],
   controllers: [AppController],
