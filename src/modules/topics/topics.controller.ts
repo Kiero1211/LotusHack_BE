@@ -6,12 +6,13 @@ import {
   HttpStatus,
   Param,
   Post,
-  Request,
   UnauthorizedException,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { GENERATE_TOPIC_ROUTES } from 'src/common/constants/route';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { UserDocument } from 'src/modules/users/schema/user.schema';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GenerateTopicRequestDto } from './dto/generate-topic-request.dto';
 import { TopicsService } from './topics.service';
@@ -28,11 +29,11 @@ export class TopicsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   async generateTopics(
-    @Request() req: AuthRequest,
+    @CurrentUser() user: UserDocument,
     @Param('teachingSessionId') teachingSessionId: string,
     @Body() body: GenerateTopicRequestDto,
   ) {
-    const userId = req.user?.userId || req.user?.sub || req.user?.id;
+    const userId = user._id.toString();
     if (!userId) {
       throw new UnauthorizedException('User not found in request');
     }
@@ -47,10 +48,10 @@ export class TopicsController {
   @Get(GENERATE_TOPIC_ROUTES.BY_TEACHING_SESSION)
   @UseGuards(JwtAuthGuard)
   async getGenerationStatus(
-    @Request() req: AuthRequest,
+    @CurrentUser() user: UserDocument,
     @Param('teachingSessionId') teachingSessionId: string,
   ) {
-    const userId = req.user?.userId || req.user?.sub || req.user?.id;
+    const userId = user._id.toString();
     if (!userId) {
       throw new UnauthorizedException('User not found in request');
     }

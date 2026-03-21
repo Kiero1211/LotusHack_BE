@@ -28,6 +28,7 @@ export const DOCUMENT_ROUTES = {
   BASE: 'documents',
   UPLOAD: 'upload',
   STATUS_BY_BATCH: 'status/:batchId',
+  BY_TEACHING_SESSION: 'teaching-sessions/:teachingSessionId',
 } as const;
 
 export const GENERATE_TOPIC_ROUTES = {
