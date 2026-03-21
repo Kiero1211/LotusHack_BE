@@ -27,3 +27,4 @@ export class TopicMastery extends MongooseDocument {
 }
 
 export const TopicMasterySchema = SchemaFactory.createForClass(TopicMastery);
+TopicMasterySchema.index({ userId: 1, topicId: 1 }, { unique: true });

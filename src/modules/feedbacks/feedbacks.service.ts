@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Chat, ChatDocument } from '../chats/schemas/chat.schema';
@@ -12,6 +12,8 @@ import { FeedbackAiService } from './services/feedback-ai.service';
 
 @Injectable()
 export class FeedbacksService {
+  private readonly logger = new Logger(FeedbacksService.name);
+
   constructor(
     @InjectModel(Feedback.name) private feedbackModel: Model<FeedbackDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
@@ -120,8 +122,9 @@ export class FeedbacksService {
   }
 
   private scoreToMasteryLevel(score: number): MasteryLevel {
-    if (score >= 80) return MasteryLevel.EXPERT;
-    if (score >= 50) return MasteryLevel.INTERMEDIATE;
+    const clamped = Math.max(0, Math.min(100, score));
+    if (clamped >= 80) return MasteryLevel.EXPERT;
+    if (clamped >= 50) return MasteryLevel.INTERMEDIATE;
     return MasteryLevel.BEGINNER;
   }
 
@@ -130,23 +133,26 @@ export class FeedbacksService {
     topicId: Types.ObjectId,
     masteryScore: number,
   ): Promise<void> {
-    const existing = await this.topicMasteryModel
-      .findOne({ userId, topicId })
-      .exec();
-
-    const newBestScore = existing
-      ? Math.max(existing.bestScore, masteryScore)
-      : masteryScore;
-    const newMasteryLevel = this.scoreToMasteryLevel(newBestScore);
-
-    await this.topicMasteryModel.findOneAndUpdate(
-      { userId, topicId },
-      {
-        $set: { bestScore: newBestScore, masteryLevel: newMasteryLevel },
-        $inc: { taughtCount: 1 },
-      },
-      { upsert: true },
-    );
+    try {
+      const updated = await this.topicMasteryModel.findOneAndUpdate(
+        { userId, topicId },
+        {
+          $max: { bestScore: masteryScore },
+          $inc: { taughtCount: 1 },
+        },
+        { upsert: true, new: true },
+      );
+      const newMasteryLevel = this.scoreToMasteryLevel(updated.bestScore);
+      await this.topicMasteryModel.updateOne(
+        { _id: updated._id },
+        { $set: { masteryLevel: newMasteryLevel } },
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to upsert TopicMastery for user ${userId.toString()}, topic ${topicId.toString()}`,
+        error,
+      );
+    }
   }
 
   private mapToResponseDto(feedback: FeedbackDocument): GetFeedbackResponseDto {
