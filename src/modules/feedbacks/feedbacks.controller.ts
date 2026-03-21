@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { FEEDBACK_ROUTES } from 'src/common/constants/route';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GenerateFeedbackDto } from './dto/generate-feedback.dto';
 import { GetFeedbackQueryDto } from './dto/get-feedback-query.dto';
 import { GetFeedbackResponseDto } from './dto/get-feedback-response.dto';
 import { UpsertFeedbackDto } from './dto/upsert-feedback.dto';
@@ -24,5 +25,10 @@ export class FeedbacksController {
   @Post()
   async upsert(@Body() dto: UpsertFeedbackDto): Promise<GetFeedbackResponseDto> {
     return this.feedbacksService.upsert(dto);
+  }
+
+  @Post(FEEDBACK_ROUTES.GENERATE)
+  async generateFeedback(@Body() dto: GenerateFeedbackDto): Promise<GetFeedbackResponseDto> {
+    return this.feedbacksService.generateFeedback(dto.chatId);
   }
 }

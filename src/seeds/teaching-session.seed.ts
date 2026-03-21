@@ -2,11 +2,18 @@ import { Model, Types } from 'mongoose';
 import { TeachingSession } from 'src/modules/teaching-sessions/schemas/teaching-session.schema';
 import { USER_IDS } from './user.seed';
 
+export const TEACHING_SESSION_IDS = {
+  alicePhotosynthesis: new Types.ObjectId('64c1d2e3f4a5b6c7d8e9f001'),
+  bobNewton: new Types.ObjectId('64c1d2e3f4a5b6c7d8e9f002'),
+  carolML: new Types.ObjectId('64c1d2e3f4a5b6c7d8e9f003'),
+};
+
 export async function seedTeachingSessions(
   teachingSessionModel: Model<TeachingSession>,
 ): Promise<void> {
   const sessions = [
     {
+      _id: TEACHING_SESSION_IDS.alicePhotosynthesis,
       userId: USER_IDS.alice,
       title: 'Photosynthesis Deep Dive',
       topic: 'Photosynthesis',
@@ -52,6 +59,7 @@ export async function seedTeachingSessions(
         'Alice demonstrated strong understanding of the two stages of photosynthesis, correctly identifying their locations and main products. Minor gaps in electron transport chain details.',
     },
     {
+      _id: TEACHING_SESSION_IDS.bobNewton,
       userId: USER_IDS.bob,
       title: "Newton's Laws Study Session",
       topic: "Newton's Laws of Motion",
@@ -91,6 +99,7 @@ export async function seedTeachingSessions(
         "Bob covered all three of Newton's laws with a solid grasp of the first and third. Could improve depth on the mathematical implications of F=ma.",
     },
     {
+      _id: TEACHING_SESSION_IDS.carolML,
       userId: USER_IDS.carol,
       title: 'ML Fundamentals Review',
       topic: 'Introduction to Machine Learning',
