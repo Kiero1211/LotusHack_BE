@@ -58,4 +58,17 @@ export class TopicsController {
 
     return this.topicsService.getGenerationStatus(userId, teachingSessionId);
   }
+
+  @Get(GENERATE_TOPIC_ROUTES.MASTERY)
+  @UseGuards(JwtAuthGuard)
+  async getMastery(
+    @CurrentUser() user: UserDocument,
+    @Param('teachingSessionId') teachingSessionId: string,
+  ) {
+    const userId = user._id.toString();
+    if (!userId) {
+      throw new UnauthorizedException('User not found in request');
+    }
+    return this.topicsService.getMasteryBySession(userId, teachingSessionId);
+  }
 }

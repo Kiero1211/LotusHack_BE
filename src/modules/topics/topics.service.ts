@@ -5,12 +5,14 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DocumentsService } from '../documents/documents.service';
 import { TeachingSessionsService } from '../teaching-sessions/teaching-sessions.service';
 import { GenerateTopicResponseDto } from './dto/generate-topic-response.dto';
 import { GenerateTopicStatusResponseDto } from './dto/generate-topic-status-response.dto';
+import { TopicMasteryItemDto } from './dto/topic-mastery-response.dto';
 import { TopicGeneration, TopicGenerationStatus } from './schemas/topic-generation.schema';
+import { TopicMastery } from './schemas/topic-mastery.schema';
 import { DifficultyLevel, Topic } from './schemas/topic.schema';
 import { TopicAiService } from './services/topic-ai.service';
 
@@ -29,6 +31,8 @@ export class TopicsService {
     private readonly topicGenerationModel: Model<TopicGeneration>,
     @InjectModel(Topic.name)
     private readonly topicModel: Model<Topic>,
+    @InjectModel(TopicMastery.name)
+    private readonly topicMasteryModel: Model<TopicMastery>,
     private readonly teachingSessionsService: TeachingSessionsService,
     private readonly documentsService: DocumentsService,
     private readonly topicAiService: TopicAiService,
@@ -110,6 +114,37 @@ export class TopicsService {
         description: topic.description,
       })),
     };
+  }
+
+  async getMasteryBySession(
+    userId: string,
+    teachingSessionId: string,
+  ): Promise<TopicMasteryItemDto[]> {
+    const generation = await this.topicGenerationModel
+      .findOne({ teachingSessionId })
+      .exec();
+
+    if (!generation || !generation.topics.length) {
+      return [];
+    }
+
+    const topicObjectIds = generation.topics.map(
+      (t) => new Types.ObjectId(t.topicId),
+    );
+
+    const masteries = await this.topicMasteryModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        topicId: { $in: topicObjectIds },
+      })
+      .exec();
+
+    return masteries.map((m) => ({
+      topicId: m.topicId.toString(),
+      bestScore: m.bestScore,
+      taughtCount: m.taughtCount,
+      masteryLevel: m.masteryLevel,
+    }));
   }
 
   private async processGeneration(generationId: string): Promise<void> {

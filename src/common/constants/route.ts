@@ -34,4 +34,5 @@ export const DOCUMENT_ROUTES = {
 export const GENERATE_TOPIC_ROUTES = {
   BASE: 'generate-topic',
   BY_TEACHING_SESSION: ':teachingSessionId',
+  MASTERY: ':teachingSessionId/mastery',
 } as const;
