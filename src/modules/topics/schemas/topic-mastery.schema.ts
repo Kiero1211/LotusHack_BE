@@ -21,6 +21,9 @@ export class TopicMastery extends MongooseDocument {
 
   @Prop({ type: Number, default: 0 })
   bestScore: number;
+
+  @Prop({ type: Number, default: 0 })
+  taughtCount: number;
 }
 
 export const TopicMasterySchema = SchemaFactory.createForClass(TopicMastery);
