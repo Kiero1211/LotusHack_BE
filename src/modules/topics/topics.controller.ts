@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -58,4 +59,15 @@ export class TopicsController {
 
     return this.topicsService.getGenerationStatus(userId, teachingSessionId);
   }
+
+  @Delete(GENERATE_TOPIC_ROUTES.DELETE)
+  @UseGuards(JwtAuthGuard)
+  async deleteTopic(
+    @Param('teachingSessionId') teachingSessionId: string,
+    @Body('topicId') topicId: string,
+  ): Promise<boolean> {
+    await this.topicsService.deleteTopic(teachingSessionId, topicId);
+    return true;
+  }
 }
+
