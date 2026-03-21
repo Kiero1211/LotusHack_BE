@@ -19,6 +19,9 @@ export class Document extends MongooseDocument {
   @Prop({ required: true })
   batchId: string;
 
+  @Prop({ required: true, index: true })
+  teachingSessionId: string;
+
   @Prop({ required: true })
   mimeType: string;
 

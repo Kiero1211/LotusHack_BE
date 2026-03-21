@@ -13,6 +13,7 @@ export class DocumentsService {
     userId: string;
     originFileName: string;
     batchId: string;
+    teachingSessionId: string;
     mimeType: string;
   }) {
     const doc = new this.documentModel({ ...data, status: DocumentStatus.PENDING });
@@ -31,5 +32,19 @@ export class DocumentsService {
 
   async getDocumentsByUser(userId: string) {
     return this.documentModel.find({ userId }).sort({ createdAt: -1 }).exec();
+  }
+
+  async getDocumentById(documentId: string) {
+    return this.documentModel.findById(documentId).exec();
+  }
+
+  async getLatestCompletedDocumentByTeachingSessionId(teachingSessionId: string) {
+    return this.documentModel
+      .findOne({
+        teachingSessionId,
+        status: DocumentStatus.COMPLETED,
+      })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .exec();
   }
 }

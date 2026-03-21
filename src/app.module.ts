@@ -4,7 +4,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { authConfig, databaseConfig } from './common/configs';
+import { authConfig, databaseConfig, openaiConfig } from './common/configs';
 import { AuthModule } from './modules/auth/auth.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DatabaseModule } from './modules/database/database.module';
@@ -16,7 +16,7 @@ import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [databaseConfig, authConfig],
+      load: [databaseConfig, authConfig, openaiConfig],
       isGlobal: true,
     }),
     DatabaseModule,

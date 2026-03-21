@@ -17,3 +17,14 @@ export const FEEDBACK_ROUTES = {
   BY_CHAT: ':chatId',
   NEWEST: ':chatId/newest',
 } as const;
+
+export const DOCUMENT_ROUTES = {
+  BASE: 'documents',
+  UPLOAD: 'upload',
+  STATUS_BY_BATCH: 'status/:batchId',
+} as const;
+
+export const GENERATE_TOPIC_ROUTES = {
+  BASE: 'generate-topic',
+  BY_TEACHING_SESSION: ':teachingSessionId',
+} as const;
